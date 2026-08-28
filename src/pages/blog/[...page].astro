@@ -1,0 +1,86 @@
+---
+export const prerender = true;
+import Base from '../../layouts/Base.astro';
+import { CATEGORIES } from '../../data/site';
+import { articles, excerpt, formatDate } from '../../lib/posts';
+import statics from '../../data/statics.json';
+
+const blogIntro = (statics as Record<string, [string, string][]>)['blog'][0][1];
+
+export async function getStaticPaths() {
+  const PER_PAGE = 25;
+  const totalPages = Math.max(1, Math.ceil(articles.length / PER_PAGE));
+  const paths = [{ params: { page: undefined }, props: { pageNum: 1, totalPages } }];
+  for (let n = 2; n <= totalPages; n++) {
+    paths.push({ params: { page: String(n) }, props: { pageNum: n, totalPages } });
+  }
+  return paths;
+}
+
+const PER_PAGE = 25;
+const { pageNum, totalPages } = Astro.props as { pageNum: number; totalPages: number };
+const items = articles.slice((pageNum - 1) * PER_PAGE, pageNum * PER_PAGE);
+
+function pageUrl(n: number) {
+  return n === 1 ? '/blog/' : `/blog/${n}/`;
+}
+---
+
+<Base title={pageNum === 1 ? 'Blog | Hetkijkpunt' : `Blog - pagina ${pageNum} | Hetkijkpunt`} description="Alle artikelen van Hetkijkpunt: lifestyle, trends en actualiteit in Nederland." canonical={pageUrl(pageNum)}>
+  <section class="wrap listing">
+    <header class="listing-head">
+      <h1>Blog</h1>
+      <p class="blog-intro">{blogIntro}</p>
+      <div class="cat-row">
+        {Object.entries(CATEGORIES).map(([slug, label]) => (
+          <a href={`/category/${slug}/`}>{label}</a>
+        ))}
+      </div>
+    </header>
+
+    <div class="card-grid">
+      {items.map((p) => (
+        <a href={`/${p.slug}/`} class="post-card">
+          <div class="thumb">{p.image ? <img src={p.image} alt="" loading="lazy" /> : <span class="ph-icon" />}</div>
+          <div class="card-body">
+            {p.category && <span class="cat-badge">{CATEGORIES[p.category] ?? p.category}</span>}
+            <h3>{p.h1}</h3>
+            <p>{excerpt(p)}</p>
+            <span class="card-meta">{formatDate(p.date)}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    {totalPages > 1 && (
+      <nav class="pagination" aria-label="Paginanavigatie">
+        {pageNum > 1 && <a href={pageUrl(pageNum - 1)} class="page-link page-prev">&larr; Vorige</a>}
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) =>
+          n === pageNum ? (
+            <span class="page-link page-current" aria-current="page">{n}</span>
+          ) : (
+            <a href={pageUrl(n)} class="page-link">{n}</a>
+          )
+        )}
+        {pageNum < totalPages && <a href={pageUrl(pageNum + 1)} class="page-link page-next">Volgende &rarr;</a>}
+      </nav>
+    )}
+  </section>
+</Base>
+
+<style>
+  .listing { padding-top: 2.5rem; }
+  .listing-head { margin-bottom: 2rem; }
+  .listing-head h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.4rem; }
+  .listing-head p { color: var(--text-soft); margin-bottom: 1.2rem; }
+  .blog-intro { max-width: 52rem; }
+  .cat-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .cat-row a {
+    font-family: var(--font-head); font-weight: 600; font-size: 0.82rem;
+    color: var(--text-soft); background: var(--bg-soft); border: 1px solid var(--line);
+    padding: 0.3rem 0.85rem; border-radius: 999px; text-decoration: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .cat-row a:hover { background: var(--orange-50); color: var(--orange-700); border-color: var(--orange-100); }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.2rem; }
+</style>

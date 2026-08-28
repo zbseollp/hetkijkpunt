@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+.env
+.env.*
+.DS_Store
+*.log
+
+# local WordPress mirror used during migration (source material, not site code)
+migration/

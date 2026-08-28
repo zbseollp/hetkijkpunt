@@ -1,0 +1,187 @@
+---
+export const prerender = true;
+import Base from '../layouts/Base.astro';
+import { SITE, CATEGORIES } from '../data/site';
+import { articles, excerpt, formatDate } from '../lib/posts';
+
+const heroIdx = articles.findIndex((p) => p.image);
+const hero = heroIdx >= 0 ? articles[heroIdx] : articles[0];
+const subFeatured = articles.filter((p) => p !== hero).slice(0, 4);
+
+const catSections = Object.entries(CATEGORIES)
+  .map(([slug, label]) => ({
+    slug,
+    label,
+    posts: articles.filter((p) => p.category === slug).slice(0, 3),
+  }))
+  .filter((c) => c.posts.length > 0)
+  .slice(0, 4);
+
+const shown = new Set([hero, ...subFeatured]);
+const rest = articles.filter((p) => !shown.has(p)).slice(0, 6);
+---
+
+<Base title="Hetkijkpunt — Lifestyle, trends en actualiteit in Nederland" description={SITE.description} canonical="/">
+  <section class="hero-band">
+    <div class="wrap">
+      <p class="hero-eyebrow">Lifestyle, trends en actualiteit</p>
+      <h1>Jouw kijkpunt op Nederland</h1>
+      <p class="hero-intro">
+        Welkom bij Hetkijkpunt &mdash; jouw heldere perspectief op lifestyle, trends, cultuur en
+        alles wat er speelt in Nederland. Geen ruis, geen overbodige franje: wel scherpe
+        artikelen, praktische gidsen en diepgaande achtergronden die je daadwerkelijk verder helpen.
+      </p>
+      <p class="hero-intro">
+        Of je nu nieuwsgierig bent naar hoe interieurkleuren je humeur sturen, welke trends nu
+        het gesprek bepalen of hoe je met een creatieve hobby je mentale veerkracht vergroot
+        &mdash; je vindt het hier, overzichtelijk en prettig om te lezen.
+      </p>
+    </div>
+  </section>
+
+  <section class="wrap featured">
+    <div class="featured-grid">
+      {hero && (
+        <a href={`/${hero.slug}/`} class="feat-main">
+          <div class="feat-thumb">
+            {hero.image ? <img src={hero.image} alt="" loading="eager" /> : <span class="ph-icon" />}
+          </div>
+          <div class="feat-body">
+            {hero.category && <span class="cat-badge">{CATEGORIES[hero.category] ?? hero.category}</span>}
+            <h2>{hero.h1}</h2>
+            <p>{excerpt(hero, 170)}</p>
+            <span class="card-meta">{formatDate(hero.date)}</span>
+          </div>
+        </a>
+      )}
+      <div class="feat-side">
+        {subFeatured.map((p) => (
+          <a href={`/${p.slug}/`} class="feat-item">
+            <div class="feat-item-thumb">
+              {p.image ? <img src={p.image} alt="" loading="lazy" /> : <span class="ph-icon sm" />}
+            </div>
+            <div class="feat-item-body">
+              <h3>{p.h1}</h3>
+              <span class="card-meta">{formatDate(p.date)}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {catSections.map((cat) => (
+    <section class="wrap cat-section">
+      <div class="cat-head">
+        <h2>{cat.label}</h2>
+        <a href={`/category/${cat.slug}/`} class="cat-all">Alles in {cat.label} &rarr;</a>
+      </div>
+      <div class="card-grid">
+        {cat.posts.map((p) => (
+          <a href={`/${p.slug}/`} class="post-card">
+            <div class="thumb">
+              {p.image ? <img src={p.image} alt="" loading="lazy" /> : <span class="ph-icon" />}
+            </div>
+            <div class="card-body">
+              <h3>{p.h1}</h3>
+              <p>{excerpt(p)}</p>
+              <span class="card-meta">{formatDate(p.date)}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <section class="wrap recent">
+    <div class="cat-head">
+      <h2>Recent verschenen</h2>
+      <a href="/blog/" class="cat-all">Naar het blog &rarr;</a>
+    </div>
+    <div class="card-grid">
+      {rest.map((p) => (
+        <a href={`/${p.slug}/`} class="post-card">
+          <div class="thumb">
+            {p.image ? <img src={p.image} alt="" loading="lazy" /> : <span class="ph-icon" />}
+          </div>
+          <div class="card-body">
+            {p.category && <span class="cat-badge">{CATEGORIES[p.category] ?? p.category}</span>}
+            <h3>{p.h1}</h3>
+            <span class="card-meta">{formatDate(p.date)}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero-band {
+    background: linear-gradient(120deg, var(--ink), #3a4d35 70%);
+    position: relative; overflow: hidden;
+  }
+  .hero-band::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(520px 300px at 85% 30%, rgba(244, 112, 0, 0.25), transparent 65%);
+  }
+  .hero-band .wrap { position: relative; padding-block: 3.6rem; }
+  .hero-eyebrow {
+    font-family: var(--font-head); font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--sage-300); margin-bottom: 0.7rem;
+  }
+  .hero-band h1 { color: #fff; font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 800; margin-bottom: 1rem; }
+  .hero-intro { color: #cfd9c9; max-width: 46rem; font-size: 1.02rem; margin-bottom: 0.8rem; }
+
+  .featured { margin-top: 2.5rem; }
+  .featured-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; }
+  @media (max-width: 880px) { .featured-grid { grid-template-columns: 1fr; } }
+
+  .feat-main {
+    text-decoration: none; background: #fff; border: 1px solid var(--line);
+    border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .feat-main:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .feat-thumb { aspect-ratio: 16 / 9; overflow: hidden; background: var(--sage-100); }
+  .feat-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .feat-body { padding: 1.5rem 1.7rem 1.7rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .feat-body h2 { font-size: clamp(1.3rem, 2.5vw, 1.7rem); line-height: 1.25; }
+  .feat-body p { color: var(--text-soft); font-size: 0.97rem; }
+
+  .feat-side { display: grid; gap: 1rem; align-content: start; }
+  .feat-item {
+    display: grid; grid-template-columns: 110px 1fr; gap: 1rem; align-items: center;
+    text-decoration: none; background: #fff; border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 0.7rem; box-shadow: var(--shadow-sm);
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  }
+  .feat-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--sage-300); }
+  .feat-item-thumb { aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: var(--sage-100); }
+  .feat-item-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .feat-item h3 { font-size: 0.96rem; line-height: 1.3; margin: 0 0 0.3rem; }
+  .feat-item-body { min-width: 0; }
+
+  .cat-badge {
+    align-self: flex-start; display: inline-block;
+    font-family: var(--font-head); font-weight: 700; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.07em; color: var(--orange-700);
+    background: var(--orange-50); border: 1px solid var(--orange-100);
+    padding: 0.2rem 0.65rem; border-radius: 999px;
+  }
+  .cat-badge.sm { font-size: 0.66rem; padding: 0.12rem 0.5rem; }
+  .card-meta { font-size: 0.8rem; color: var(--text-faint); }
+
+  .cat-section, .recent { margin-top: 3.5rem; }
+  .cat-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+    margin-bottom: 1.3rem; border-bottom: 2px solid var(--line); padding-bottom: 0.7rem;
+  }
+  .cat-head h2 { font-size: 1.5rem; font-weight: 800; }
+  .cat-all {
+    font-family: var(--font-head); font-weight: 700; font-size: 0.88rem;
+    color: var(--orange-600); text-decoration: none; white-space: nowrap;
+  }
+  .cat-all:hover { text-decoration: underline; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; }
+</style>

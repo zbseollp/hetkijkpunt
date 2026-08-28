@@ -1,0 +1,51 @@
+---
+export const prerender = true;
+import Base from '../../layouts/Base.astro';
+import { CATEGORIES } from '../../data/site';
+import { byCategory, excerpt, formatDate } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  return Object.keys(CATEGORIES).map((cat) => ({ params: { cat } }));
+}
+
+const { cat } = Astro.params;
+const label = CATEGORIES[cat!] ?? cat;
+const items = byCategory(cat!);
+---
+
+<Base title={`${label} | Hetkijkpunt`} description={`Alle artikelen in de rubriek ${label} op Hetkijkpunt.`} canonical={`/category/${cat}/`}>
+  <section class="wrap listing">
+    <header class="listing-head">
+      <p class="kicker">Rubriek</p>
+      <h1>{label}</h1>
+      <p>{items.length} {items.length === 1 ? 'artikel' : 'artikelen'} in deze rubriek.</p>
+    </header>
+
+    <div class="card-grid">
+      {items.map((p) => (
+        <a href={`/${p.slug}/`} class="post-card">
+          <div class="thumb">{p.image ? <img src={p.image} alt="" loading="lazy" /> : <span class="ph-icon" />}</div>
+          <div class="card-body">
+            <h3>{p.h1}</h3>
+            <p>{excerpt(p)}</p>
+            <span class="card-meta">{formatDate(p.date)}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .listing { padding-top: 2.5rem; }
+  .listing-head { margin-bottom: 2rem; }
+  .kicker {
+    display: inline-block; font-family: var(--font-head); font-size: 0.74rem;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--orange-700);
+    font-weight: 700; margin-bottom: 0.7rem; background: var(--orange-50);
+    border: 1px solid var(--orange-100); padding: 0.25rem 0.7rem; border-radius: 999px;
+  }
+  .listing-head h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.4rem; }
+  .listing-head p { color: var(--text-soft); }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.2rem; }
+</style>

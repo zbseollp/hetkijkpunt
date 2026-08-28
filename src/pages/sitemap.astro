@@ -1,0 +1,64 @@
+---
+export const prerender = true;
+import Base from '../layouts/Base.astro';
+import { CATEGORIES } from '../data/site';
+import { articles } from '../lib/posts';
+
+const byCat = Object.entries(CATEGORIES).map(([slug, label]) => ({
+  slug,
+  label,
+  posts: articles.filter((p) => p.category === slug),
+}));
+const uncategorized = articles.filter((p) => !p.category || !(p.category in CATEGORIES));
+---
+
+<Base title="Sitemap | Hetkijkpunt" description="Overzicht van alle pagina's en artikelen op Hetkijkpunt.nl." canonical="/sitemap/">
+  <section class="page-hero">
+    <div class="wrap">
+      <h1>Sitemap</h1>
+    </div>
+  </section>
+  <section class="wrap page-body">
+    <div class="cols">
+      <div>
+        <h2>Pagina's</h2>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/blog/">Blog</a></li>
+          <li><a href="/over-ons/">Over ons</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/privacyverklaring/">Privacyverklaring</a></li>
+        </ul>
+        <h2>Rubrieken</h2>
+        <ul>
+          {byCat.map((c) => (
+            <li><a href={`/category/${c.slug}/`}>{c.label}</a> ({c.posts.length})</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2>Alle artikelen</h2>
+        <ul>
+          {articles.map((p) => (
+            <li><a href={`/${p.slug}/`}>{p.h1}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero { background: linear-gradient(120deg, var(--ink), #3a4d35 70%); }
+  .page-hero .wrap { padding-block: 3rem; }
+  .page-hero h1 { color: #fff; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; }
+  .page-body { padding-top: 2.5rem; }
+  .cols { display: grid; grid-template-columns: 1fr 2fr; gap: 3rem; }
+  @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
+  .cols h2 { font-size: 1.2rem; margin: 0 0 0.8rem; }
+  .cols h2 + ul { margin-bottom: 2rem; }
+  .cols ul { list-style: none; padding: 0; margin: 0; }
+  .cols li { margin-bottom: 0.45rem; font-size: 0.93rem; }
+  .cols a { color: var(--orange-600); text-decoration: none; }
+  .cols a:hover { text-decoration: underline; }
+</style>

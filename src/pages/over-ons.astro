@@ -1,0 +1,29 @@
+---
+export const prerender = true;
+import Base from '../layouts/Base.astro';
+import statics from '../data/statics.json';
+
+const blocks = (statics as Record<string, [string, string][]>)['over-ons'];
+---
+
+<Base title="Over ons | Hetkijkpunt" description="Wie zijn we en wat drijft ons. Lees meer over de redactie van Hetkijkpunt.nl." canonical="/over-ons/">
+  <section class="page-hero">
+    <div class="wrap">
+      <h1>Over ons</h1>
+    </div>
+  </section>
+  <section class="wrap page-body">
+    <div class="prose">
+      {blocks.map(([tag, text]) =>
+        tag === 'h2' || tag === 'h3' ? <h2>{text}</h2> : <p>{text}</p>
+      )}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero { background: linear-gradient(120deg, var(--ink), #3a4d35 70%); }
+  .page-hero .wrap { padding-block: 3rem; }
+  .page-hero h1 { color: #fff; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; }
+  .page-body { padding-top: 2.5rem; }
+</style>

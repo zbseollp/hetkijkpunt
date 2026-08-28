@@ -1,0 +1,297 @@
+---
+import '@fontsource/archivo/600.css';
+import '@fontsource/archivo/700.css';
+import '@fontsource/archivo/800.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/600.css';
+import { SITE, CATEGORIES } from '../data/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+}
+
+const { title, description = SITE.description, canonical, ogImage } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={`https://${SITE.domain}${canonical}`} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    {ogImage && <meta property="og:image" content={`https://${SITE.domain}${ogImage}`} />}
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: SITE.name,
+      url: `https://${SITE.domain}`,
+      description: SITE.description,
+    })} />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a href="/" class="brand" aria-label="Hetkijkpunt home">
+          <svg class="brand-mark" width="34" height="34" viewBox="0 0 64 64" aria-hidden="true">
+            <circle cx="32" cy="32" r="26" fill="none" stroke="#22301f" stroke-width="6" />
+            <circle cx="32" cy="32" r="26" fill="none" stroke="#f47000" stroke-width="6" stroke-dasharray="41 123" stroke-dashoffset="-20" stroke-linecap="round" />
+            <circle cx="32" cy="32" r="9" fill="#f47000" />
+          </svg>
+          <span class="brand-text">Het<span>kijkpunt</span></span>
+        </a>
+        <nav class="main-nav" aria-label="Hoofdnavigatie">
+          <a href="/" class="nav-link">Home</a>
+          <div class="nav-item">
+            <a href="/blog/" class="nav-link">Blog</a>
+            <div class="dropdown">
+              {Object.entries(CATEGORIES).map(([slug, label]) => (
+                <a href={`/category/${slug}/`}>{label}</a>
+              ))}
+            </div>
+          </div>
+          <a href="/over-ons/" class="nav-link">Over ons</a>
+          <a href="/contact/" class="nav-link">Contact</a>
+        </nav>
+        <button class="nav-toggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+      <nav class="mobile-nav" aria-label="Mobiele navigatie">
+        <a href="/">Home</a>
+        <a href="/blog/">Blog</a>
+        <a href="/over-ons/">Over ons</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div>
+          <p class="footer-brand">Het<span>kijkpunt</span></p>
+          <p class="footer-tagline">{SITE.tagline}. Lifestyle, trends en actualiteit in Nederland.</p>
+        </div>
+        <div>
+          <p class="footer-heading">Rubrieken</p>
+          <ul>
+            {Object.entries(CATEGORIES).slice(0, 6).map(([slug, label]) => (
+              <li><a href={`/category/${slug}/`}>{label}</a></li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p class="footer-heading">Meer rubrieken</p>
+          <ul>
+            {Object.entries(CATEGORIES).slice(6).map(([slug, label]) => (
+              <li><a href={`/category/${slug}/`}>{label}</a></li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p class="footer-heading">Over</p>
+          <ul>
+            <li><a href="/over-ons/">Over ons</a></li>
+            <li><a href="/contact/">Contact</a></li>
+            <li><a href="/privacyverklaring/">Privacyverklaring</a></li>
+            <li><a href="/sitemap/">Sitemap</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="wrap footer-bottom">
+        <p>HetKijkpunt.nl &copy; <span data-year>{year}</span> Alle rechten voorbehouden.</p>
+      </div>
+    </footer>
+    <script is:inline>
+      document.querySelectorAll('[data-year]').forEach(function (el) {
+        el.textContent = String(new Date().getFullYear());
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --orange-50: #fef4ec;
+    --orange-100: #fde5d2;
+    --orange-500: #f47000;
+    --orange-600: #d96300;
+    --orange-700: #b35200;
+    --sage-100: #e7eee1;
+    --sage-300: #b2c6a5;
+    --sage-600: #7a9468;
+    --ink: #22301f;
+    --text: #364436;
+    --text-soft: #5c6b58;
+    --text-faint: #82907e;
+    --bg: #ffffff;
+    --bg-soft: #f7f9f4;
+    --line: #e6ebe1;
+    --shadow-sm: 0 1px 2px rgba(34, 48, 31, 0.06);
+    --shadow-md: 0 10px 32px rgba(34, 48, 31, 0.1);
+    --shadow-lg: 0 18px 50px rgba(34, 48, 31, 0.14);
+    --radius: 12px;
+    --radius-lg: 18px;
+    --font-head: 'Archivo', 'Segoe UI', system-ui, sans-serif;
+    --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body); background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 1.03rem; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin-inline: auto; padding-inline: 1.5rem; }
+  a { color: var(--orange-600); }
+  h1, h2, h3, h4 { font-family: var(--font-head); color: var(--ink); letter-spacing: -0.015em; line-height: 1.2; }
+  :focus-visible { outline: 2px solid var(--orange-500); outline-offset: 2px; border-radius: 4px; }
+
+  /* Header */
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner { display: flex; align-items: center; gap: 2rem; height: 4.4rem; }
+  .brand {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-family: var(--font-head); font-weight: 800; font-size: 1.4rem;
+    color: var(--ink); text-decoration: none; letter-spacing: -0.02em;
+  }
+  .brand-mark { transition: transform 0.4s ease; }
+  .brand:hover .brand-mark { transform: rotate(90deg); }
+  .brand-text span { color: var(--orange-500); }
+  .main-nav { display: flex; gap: 0.3rem; margin-left: auto; }
+  .nav-item { position: relative; }
+  .nav-link {
+    display: inline-block; color: var(--text-soft); text-decoration: none;
+    font-family: var(--font-head); font-weight: 600; font-size: 0.92rem;
+    padding: 0.5rem 0.9rem; border-radius: 999px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .nav-link:hover { color: var(--orange-700); background: var(--orange-50); }
+  .dropdown {
+    visibility: hidden; opacity: 0; transform: translateY(6px);
+    transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+    position: absolute; left: 0; top: calc(100% + 8px); min-width: 240px;
+    background: #fff; border: 1px solid var(--line);
+    box-shadow: var(--shadow-lg); border-radius: var(--radius);
+    padding: 0.5rem; z-index: 60;
+  }
+  .nav-item:hover .dropdown, .nav-item:focus-within .dropdown {
+    visibility: visible; opacity: 1; transform: translateY(0);
+  }
+  .dropdown a {
+    display: block; padding: 0.5rem 0.8rem; text-decoration: none;
+    color: var(--text-soft); font-size: 0.9rem; border-radius: 8px;
+  }
+  .dropdown a:hover { background: var(--orange-50); color: var(--orange-700); }
+  .nav-toggle { display: none; margin-left: auto; background: none; border: 0; cursor: pointer; padding: 0.5rem; }
+  .nav-toggle span { display: block; width: 22px; height: 2px; background: var(--ink); margin: 5px 0; border-radius: 2px; }
+  .mobile-nav { display: none; }
+  @media (max-width: 820px) {
+    .main-nav { display: none; }
+    .nav-toggle { display: block; }
+    body.nav-open .mobile-nav { display: flex; flex-direction: column; border-top: 1px solid var(--line); background: #fff; }
+    .mobile-nav a {
+      padding: 0.9rem 1.5rem; text-decoration: none; color: var(--text);
+      font-family: var(--font-head); font-weight: 600; border-bottom: 1px solid var(--line);
+    }
+    .mobile-nav a:hover { background: var(--orange-50); color: var(--orange-700); }
+  }
+
+  /* Footer */
+  .site-footer { background: var(--ink); color: #b9c4b4; margin-top: 5rem; }
+  .footer-grid { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 2.2rem; padding-block: 3.2rem; }
+  @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .footer-grid { grid-template-columns: 1fr; } }
+  .footer-brand { font-family: var(--font-head); font-weight: 800; font-size: 1.3rem; color: #fff; }
+  .footer-brand span { color: var(--orange-500); }
+  .footer-tagline { font-size: 0.9rem; margin-top: 0.5rem; max-width: 20rem; }
+  .footer-heading {
+    font-family: var(--font-head); font-size: 0.75rem; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--sage-300); margin-bottom: 0.7rem; font-weight: 700;
+  }
+  .site-footer ul { list-style: none; padding: 0; }
+  .site-footer li { margin-bottom: 0.4rem; }
+  .site-footer a { color: #b9c4b4; text-decoration: none; font-size: 0.88rem; }
+  .site-footer a:hover { color: #fff; }
+  .footer-bottom { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-block: 1.2rem; font-size: 0.85rem; }
+
+  /* Prose */
+  .prose { max-width: 72ch; }
+  .prose h2, .prose h3, .prose h4 { margin: 2.2rem 0 0.8rem; }
+  .prose h2 { font-size: 1.45rem; }
+  .prose h3 { font-size: 1.16rem; }
+  .prose p { margin-bottom: 1.15rem; color: var(--text-soft); }
+  .prose strong { color: var(--text); }
+  .prose ul, .prose ol { margin: 0 0 1.15rem 1.4rem; color: var(--text-soft); }
+  .prose li { margin-bottom: 0.4rem; }
+  .prose img { max-width: 100%; height: auto; border-radius: var(--radius); margin: 1.6rem 0; }
+  .prose figure { margin: 1.6rem 0; }
+  .prose figure img { margin: 0; }
+  .prose figcaption { font-size: 0.85rem; color: var(--text-faint); margin-top: 0.55rem; }
+  .prose blockquote {
+    border-left: 3px solid var(--orange-500); background: var(--orange-50);
+    padding: 1rem 1.3rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.6rem 0;
+  }
+  .prose a { color: var(--orange-600); }
+
+  /* Kaarten (gedeeld) */
+  .post-card {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg);
+    overflow: hidden; text-decoration: none; display: flex; flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  }
+  .post-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--sage-300); }
+  .post-card .thumb {
+    aspect-ratio: 16 / 10; overflow: hidden;
+    background: linear-gradient(135deg, var(--sage-100), var(--orange-50));
+    display: grid; place-items: center;
+  }
+  .post-card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* Placeholder-icoon voor artikelen zonder afbeelding */
+  .ph-icon {
+    width: 54px; height: 54px; display: block; opacity: 0.55;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='26' fill='none' stroke='%237a9468' stroke-width='6'/%3E%3Ccircle cx='32' cy='32' r='26' fill='none' stroke='%23f47000' stroke-width='6' stroke-dasharray='41 123' stroke-dashoffset='-20' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%23f47000'/%3E%3C/svg%3E");
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+  }
+  .ph-icon.sm { width: 34px; height: 34px; }
+  .post-card .card-body { padding: 1.2rem 1.3rem 1.4rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+  .post-card .cat-badge {
+    align-self: flex-start; font-family: var(--font-head); font-weight: 700; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.07em; color: var(--orange-700);
+    background: var(--orange-50); border: 1px solid var(--orange-100);
+    padding: 0.2rem 0.65rem; border-radius: 999px;
+  }
+  .post-card h3 { font-size: 1.08rem; line-height: 1.35; }
+  .post-card p { font-size: 0.9rem; color: var(--text-soft); flex: 1; }
+  .post-card .card-meta { font-size: 0.8rem; color: var(--text-faint); }
+
+  .pagination { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 2.5rem; align-items: center; }
+  .page-link {
+    display: inline-block; min-width: 2.4rem; text-align: center;
+    padding: 0.45rem 0.7rem; border-radius: 10px; text-decoration: none;
+    font-family: var(--font-head); font-weight: 700; font-size: 0.9rem;
+    color: var(--ink); background: #fff; border: 1px solid var(--line);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .page-link:hover { background: var(--orange-50); border-color: var(--orange-100); }
+  .page-current { background: var(--orange-500); color: #fff; border-color: var(--orange-500); }
+  .page-prev, .page-next { padding-inline: 1rem; }
+</style>

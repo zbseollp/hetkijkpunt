@@ -1,0 +1,31 @@
+---
+export const prerender = true;
+import Base from '../layouts/Base.astro';
+import statics from '../data/statics.json';
+
+const blocks = (statics as Record<string, [string, string][]>)['privacyverklaring'].filter(
+  ([tag, t]) => !(tag === 'h1' && t === 'Privacyverklaring')
+);
+---
+
+<Base title="Privacyverklaring | Hetkijkpunt" description="De privacyverklaring van Hetkijkpunt.nl." canonical="/privacyverklaring/">
+  <section class="page-hero">
+    <div class="wrap">
+      <h1>Privacyverklaring</h1>
+    </div>
+  </section>
+  <section class="wrap page-body">
+    <div class="prose">
+      {blocks.map(([tag, text]) =>
+        tag === 'h2' ? <h2>{text}</h2> : tag === 'h3' ? <h3>{text}</h3> : tag === 'li' ? <p>&bull; {text}</p> : <p>{text}</p>
+      )}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero { background: linear-gradient(120deg, var(--ink), #3a4d35 70%); }
+  .page-hero .wrap { padding-block: 3rem; }
+  .page-hero h1 { color: #fff; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; }
+  .page-body { padding-top: 2.5rem; }
+</style>

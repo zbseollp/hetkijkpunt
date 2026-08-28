@@ -1,0 +1,18 @@
+---
+export const prerender = true;
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Pagina niet gevonden | Hetkijkpunt" description="Deze pagina bestaat niet (meer).">
+  <section class="wrap nf">
+    <h1>Pagina niet gevonden</h1>
+    <p>De pagina die je zoekt bestaat niet (meer).</p>
+    <p><a href="/">Terug naar de homepagina</a> of bekijk <a href="/blog/">het blog</a>.</p>
+  </section>
+</Base>
+
+<style>
+  .nf { padding-block: 5rem; text-align: center; }
+  .nf h1 { font-size: 2rem; margin-bottom: 0.8rem; }
+  .nf p { color: var(--text-soft); margin-bottom: 0.5rem; }
+</style>
